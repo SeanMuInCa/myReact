@@ -1,4 +1,4 @@
-import { createElement } from "./src";
+import { createElement, crateTextElement } from "./src";
 
 const element = createElement(
   "h1", 

@@ -1,3 +1,3 @@
 import createElement from "./createElement";
-
-export { createElement,  }
+import crateTextElement from "./createTextElement";
+export { createElement, crateTextElement,  }
