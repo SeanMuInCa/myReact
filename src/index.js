@@ -1,3 +1,4 @@
 import createElement from "./createElement";
 import crateTextElement from "./createTextElement";
-export { createElement, crateTextElement,  }
+import render from "./render";
+export { createElement, crateTextElement, render }
