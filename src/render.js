@@ -12,15 +12,17 @@
 // }
 
 function render(element, container) {
-	nextTask = {
+	wipRoot = {
 		dom: container,
 		props: {
 			children: [element],
 		},
 	};
+	nextTask = wipRoot;
 }
 
 let nextTask = null;
+let wipRoot = null;
 
 function workLoop(deadline) {
 	let shouldYield = false;
@@ -29,18 +31,26 @@ function workLoop(deadline) {
 		//check the remaining time less than 1 ms, then yield
 		shouldYield = deadline.timeRemaining() < 1;
 	}
+    //once we finish, we commit the root
+	if (!nextTask && wipRoot) {
+		commitRoot();
+	}
 	requestIdleCallback(workLoop);
 }
 requestIdleCallback(workLoop);
 
+function commitRoot() {
+	// TODO add nodes to dom
+}
 function performanceTask(fiber) {
 	// TODO add dom node
 	if (!fiber.dom) {
 		fiber.dom = createDom(fiber);
 	}
-	if (fiber.parent) {
-		fiber.parent.dom.appendChild(fiber.dom);
-	}
+	//we might not be able to finish create dom, because the browser might interrupt us
+	// if (fiber.parent) {
+	// 	fiber.parent.dom.appendChild(fiber.dom);
+	// }
 	// TODO create new fibers
 	const elements = fiber.props.children;
 	let index = 0;
@@ -62,7 +72,7 @@ function performanceTask(fiber) {
 		prevSibling = newFiber;
 		index++;
 	}
-    // TODO return next unit of work
+	// TODO return next unit of work
 	if (fiber.child) {
 		return fiber.child;
 	}
