@@ -26,18 +26,19 @@ function createDom(fiber){
     // container.appendChild(dom);
 }
 function render(element, container) {
-	nextUnitOfWork = {
+	wipRoot = {
 		dom: container,
 		props: {
 			children: [element],
 		},
         child: null,
 	};
-
+    nextUnitOfWork = wipRoot;
 }
 
 let nextUnitOfWork = null;
-
+//wip means half way done, so that root means 
+let wipRoot = null;
 function workLoop(deadline) {
     let shouldYield = false;
     while (nextUnitOfWork && !shouldYield) {
@@ -48,17 +49,38 @@ function workLoop(deadline) {
         
         shouldYield = deadline.timeRemaining() < 1;// not enough time to operate
     }
+    if (!nextUnitOfWork && wipRoot) {
+        commitRoot();
+    }
     requestIdleCallback(workLoop);
 }
 requestIdleCallback(workLoop)//call this method will inject a parameter to the workLoop
+
+const commitRoot = () => {
+    commitWork(wipRoot.child);
+    wipRoot = null;
+}
+
+const commitWork = fiber => {
+    if (!fiber) return;
+    // parent node
+    const domParent = fiber.parent.dom;
+    if (domParent) {
+        domParent.appendChild(fiber.dom);
+    }
+    commitWork(fiber.child);
+    commitWork(fiber.sibling);
+}
+
 
 function performUnitOfWork(fiber) {
     if (!fiber.dom) {
         fiber.dom = createDom(fiber);
     }
-    if (fiber.parent) {
-        fiber.parent.dom.appendChild(fiber.dom);
-    }
+    //covert to render and commit
+    // if (fiber.parent) {
+    //     fiber.parent.dom.appendChild(fiber.dom);
+    // }
     const elements = fiber.props.children;
 
     let prevSibling = null;
@@ -78,7 +100,6 @@ function performUnitOfWork(fiber) {
             prevSibling.sibling = newFiber;
         }
         prevSibling = newFiber;
-
     }
 
     if(fiber.child) return fiber.child;
