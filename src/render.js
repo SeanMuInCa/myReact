@@ -31,6 +31,7 @@ function render(element, container) {
 		props: {
 			children: [element],
 		},
+        alternate: currentRoot,
         child: null,
 	};
     nextUnitOfWork = wipRoot;
@@ -39,6 +40,8 @@ function render(element, container) {
 let nextUnitOfWork = null;
 //wip means half way done, so that root means 
 let wipRoot = null;
+
+let currentRoot = null;
 function workLoop(deadline) {
     let shouldYield = false;
     while (nextUnitOfWork && !shouldYield) {
@@ -58,6 +61,7 @@ requestIdleCallback(workLoop)//call this method will inject a parameter to the w
 
 const commitRoot = () => {
     commitWork(wipRoot.child);
+    currentRoot = wipRoot;
     wipRoot = null;
 }
 
@@ -83,24 +87,26 @@ function performUnitOfWork(fiber) {
     // }
     const elements = fiber.props.children;
 
-    let prevSibling = null;
+    myDiff(fiber, elements);
+    //replace with diff
+    // let prevSibling = null;
 
-    for (let i = 0; i < elements.length; i++) {
-        const newFiber = {
-            dom:null,
-            parent:fiber,
-            props:elements[i].props,
-            type:elements[i].type,
-            child: null,
-            sibling: null
-        }
-        if (i === 0) {
-            fiber.child = newFiber;
-        } else {
-            prevSibling.sibling = newFiber;
-        }
-        prevSibling = newFiber;
-    }
+    // for (let i = 0; i < elements.length; i++) {
+    //     const newFiber = {
+    //         dom:null,
+    //         parent:fiber,
+    //         props:elements[i].props,
+    //         type:elements[i].type,
+    //         child: null,
+    //         sibling: null
+    //     }
+    //     if (i === 0) {
+    //         fiber.child = newFiber;
+    //     } else {
+    //         prevSibling.sibling = newFiber;
+    //     }
+    //     prevSibling = newFiber;
+    // }
 
     if(fiber.child) return fiber.child;
     let nextFiber = fiber;
@@ -114,4 +120,34 @@ function performUnitOfWork(fiber) {
     }
 }
 
+
+//key type
+// the diff method is going to compare based on key
+/**
+ * 1. compare the type
+ * 2. same type? update
+ * 3. new element different type? add
+ * 4. old fiber different type? delete
+ * @param {*} wipRoot
+ * @param {*} elements  
+ */
+function myDiff(wipRoot, elements){
+    let index = 0;
+    //point to current fiber
+    let oldFiber = wipRoot.alternate && wipRoot.alternate.child;
+
+    while (index < elements.length || oldFiber) {
+        const element = elements[index];
+        const sameType = oldFiber && element && element.type === oldFiber.type;
+        if(sameType){
+            //do update
+        }
+        if(element && !sameType){
+            //do add
+        }
+        if(oldFiber && !sameType){
+            //do delete
+        }
+    }
+}
 export default render;
