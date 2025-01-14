@@ -139,8 +139,17 @@ function myDiff(wipRoot, elements){
     while (index < elements.length || oldFiber) {
         const element = elements[index];
         const sameType = oldFiber && element && element.type === oldFiber.type;
+        let newFiber = null;
         if(sameType){
             //do update
+            newFiber = {
+                dom: oldFiber.dom,
+                props: element.props,
+                type: oldFiber.type,
+                alternate: oldFiber,
+                parent: wipRoot,
+                tag: 'UPDATE',
+            }
         }
         if(element && !sameType){
             //do add
