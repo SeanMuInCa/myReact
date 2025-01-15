@@ -90,9 +90,11 @@ const commitWork = fiber => {
 
 
 function updateDom(dom, oldProps, newProps){
+    //deal with event
+    const isEvent = key => key.startsWith('on')
     //remove old properties
     Object.keys(oldProps)
-        .filter(key => key !== 'children')
+        .filter(key => key !== 'children' && !isEvent(key))
         .forEach(key => {
             if (key !== newProps[key]) {
                 dom[key] = null;
@@ -100,7 +102,7 @@ function updateDom(dom, oldProps, newProps){
         });
     //set new or changed properties
     Object.keys(newProps)
-        .filter(key => key !== 'children')
+        .filter(key => key !== 'children' && !isEvent(key))
         .forEach(key => {
             if (key !== oldProps[key]) {
                 dom[key] = newProps[key];
