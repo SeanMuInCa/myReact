@@ -74,12 +74,39 @@ const commitWork = fiber => {
     // parent node
     const domParent = fiber.parent.dom;
     if (domParent) {
-        domParent.appendChild(fiber.dom);
+        //we need to do more than just append
+        // domParent.appendChild(fiber.dom);
+        if (fiber.tag === 'ADD' && fiber.dom != null) {
+            domParent.appendChild(fiber.dom);
+        } else if (fiber.tag === 'UPDATE' && fiber.dom != null) {
+            updateDom(fiber.dom, fiber.alternate.props, fiber.props)
+        } else if (fiber.tag === 'DELETE' && fiber.dom != null) {
+            domParent.removeChild(fiber.dom);
+        }
     }
     commitWork(fiber.child);
     commitWork(fiber.sibling);
 }
 
+
+function updateDom(dom, oldProps, newProps){
+    //remove old properties
+    Object.keys(oldProps)
+        .filter(key => key !== 'children')
+        .forEach(key => {
+            if (key !== newProps[key]) {
+                dom[key] = null;
+            }
+        });
+    //set new or changed properties
+    Object.keys(newProps)
+        .filter(key => key !== 'children')
+        .forEach(key => {
+            if (key !== oldProps[key]) {
+                dom[key] = newProps[key];
+            }
+        });
+}
 
 function performUnitOfWork(fiber) {
     if (!fiber.dom) {
