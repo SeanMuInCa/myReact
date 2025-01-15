@@ -74,7 +74,12 @@ const commitRoot = () => {
 const commitWork = (fiber) => {
 	if (!fiber) return;
 	// parent node
-	const domParent = fiber.parent.dom;
+	let fiberParent = fiber.parent;
+    
+    while(!fiberParent.dom){
+        fiberParent = fiberParent.parent;
+    }
+    const domParent = fiberParent.dom;
 	if (domParent) {
 		//we need to do more than just append
 		// domParent.appendChild(fiber.dom);
@@ -82,7 +87,7 @@ const commitWork = (fiber) => {
 			domParent.appendChild(fiber.dom);
 		} else if (fiber.tag === "UPDATE" && fiber.dom != null) {
 			updateDom(fiber.dom, fiber.alternate.props, fiber.props);
-		} else if (fiber.tag === "DELETE" && fiber.dom != null) {
+		} else if (fiber.tag === "DELETE") {
 			domParent.removeChild(fiber.dom);
 		}
 	}
@@ -130,16 +135,22 @@ function updateDom(dom, oldProps, newProps) {
 }
 
 function performUnitOfWork(fiber) {
-	if (!fiber.dom) {
-		fiber.dom = createDom(fiber);
-	}
+    const isFunctionComponent = fiber.type instanceof Function;
+
+    if (isFunctionComponent) {
+        updateFunctionComponent(fiber);
+    } else {
+        updateHostComponent(fiber);
+    }
+
+	
 	//covert to render and commit
 	// if (fiber.parent) {
 	//     fiber.parent.dom.appendChild(fiber.dom);
 	// }
-	const elements = fiber.props.children;
+	
 
-	myDiff(fiber, elements);
+	
 	//replace with diff
 	// let prevSibling = null;
 
@@ -170,6 +181,29 @@ function performUnitOfWork(fiber) {
 		//else go parent node
 		nextFiber = nextFiber.parent;
 	}
+}
+
+/**
+ * deal with regular component
+ * @param {*} fiber 
+ */
+function updateHostComponent(fiber){
+    if (!fiber.dom) {
+		fiber.dom = createDom(fiber);
+	}
+    const elements = fiber.props.children;
+    myDiff(fiber, elements);
+}
+
+/**
+ * deal with function component
+ * @param {*} fiber 
+ */
+function updateFunctionComponent(fiber){
+    console.log('i am a function component', fiber);
+    
+    const elements = [fiber.type(fiber.props)];
+    myDiff(fiber, elements);
 }
 
 //key type

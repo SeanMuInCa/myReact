@@ -8,25 +8,33 @@ const element = createElement(
   "Hello World",
   createElement("p", { class:'p', id:'pelement', style:'background:red' }, "This is a paragraph")
 );
-const handleChange = e => {
-  renderer(e.target.value);
+// const handleChange = e => {
+//   //now it works, what about the components?
+//   renderer(e.target.value);
   
+// };
+// const renderer = value =>{
+//   const element1 = createElement(
+//     'div',
+//     null,
+//     createElement('input', {
+//       oninput: (e) => {
+//         handleChange(e);
+//       }
+//     }),
+//     createElement('h2', null, value)
+//   )
+//   render(element1, app);
+// }
+// renderer('hello')
+// console.log(element);
+const App = (props) => {
+  return createElement('div', null, 'hello ', props.name);
 };
-const renderer = value =>{
-  const element1 = createElement(
-    'div',
-    null,
-    createElement('input', {
-      oninput: (e) => {
-        handleChange(e);
-      }
-    }),
-    createElement('h2', null, value)
-  )
-  render(element1, app);
-}
-renderer('hello')
-console.log(element);
+console.log(typeof App);
 
+const element3 = createElement(App, { name: 'world' });
+
+render(element3, app);
 
 // render(element1, app);
