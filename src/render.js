@@ -34,6 +34,7 @@ function render(element, container) {
         alternate: currentRoot,
         child: null,
 	};
+    deletions = [];
     nextUnitOfWork = wipRoot;
 }
 
@@ -42,6 +43,8 @@ let nextUnitOfWork = null;
 let wipRoot = null;
 
 let currentRoot = null;
+
+let deletions = null;
 function workLoop(deadline) {
     let shouldYield = false;
     while (nextUnitOfWork && !shouldYield) {
@@ -60,6 +63,7 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop)//call this method will inject a parameter to the workLoop
 
 const commitRoot = () => {
+    deletions.forEach(commitWork)
     commitWork(wipRoot.child);
     currentRoot = wipRoot;
     wipRoot = null;
@@ -136,6 +140,7 @@ function myDiff(wipRoot, elements){
     //point to current fiber
     let oldFiber = wipRoot.alternate && wipRoot.alternate.child;
 
+    let prevSibling = null;
     while (index < elements.length || oldFiber) {
         const element = elements[index];
         const sameType = oldFiber && element && element.type === oldFiber.type;
@@ -153,10 +158,32 @@ function myDiff(wipRoot, elements){
         }
         if(element && !sameType){
             //do add
+            newFiber = {
+                dom: null,
+                props: element.props,
+                type: element.type,
+                alternate: null,
+                parent: wipRoot,
+                tag: 'ADD',
+            }
         }
         if(oldFiber && !sameType){
             //do delete
+            oldFiber.tag = 'DELETE';
+            deletions.push(oldFiber)
         }
+        // old child nodes
+        if(oldFiber){
+            oldFiber = oldFiber.sibling;
+        }
+        // new child nodes
+        if(index === 0){
+            wipRoot.child = newFiber;
+        }else {
+            prevSibling.sibling = newFiber;
+        }
+        prevSibling = newFiber;
+        index++;
     }
 }
 export default render;
