@@ -125,6 +125,8 @@ function updateDom(dom, oldProps, newProps) {
 	Object.keys(newProps)
 		.filter(isEvent)
 		.forEach((key) => {
+            console.log(key,'event');
+            
 			const eventType = key.toLowerCase().substring(2);
 			dom.addEventListener(eventType, newProps[key]);
 		});

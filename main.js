@@ -1,5 +1,6 @@
-import { createElement, crateTextElement, render } from "./src";
 
+import { createElement, crateTextElement, render } from "./src";
+const app = document.getElementById('app');
 const element = createElement(
   "h1", 
   { class:'h1', id:'h1element', style:'color:blue;' }, 
@@ -7,8 +8,25 @@ const element = createElement(
   "Hello World",
   createElement("p", { class:'p', id:'pelement', style:'background:red' }, "This is a paragraph")
 );
-
+const handleChange = e => {
+  console.log(e.target.value);
+  
+};
+const renderer = value =>{
+  const element1 = createElement(
+    'div',
+    null,
+    createElement('input', {
+      oninput: (e) => {
+        handleChange(e);
+      }
+    }),
+    createElement('h2', null, value)
+  )
+  render(element1, app);
+}
+renderer('hello')
 console.log(element);
 
-const app = document.getElementById('app');
-render(element, app);
+
+// render(element1, app);
