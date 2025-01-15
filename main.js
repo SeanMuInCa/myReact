@@ -9,7 +9,7 @@ const element = createElement(
   createElement("p", { class:'p', id:'pelement', style:'background:red' }, "This is a paragraph")
 );
 const handleChange = e => {
-  console.log(e.target.value);
+  renderer(e.target.value);
   
 };
 const renderer = value =>{

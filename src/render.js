@@ -54,7 +54,6 @@ function workLoop(deadline) {
 	let shouldYield = false;
 	while (nextUnitOfWork && !shouldYield) {
 		nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
-		console.log(nextUnitOfWork);
 
 		shouldYield = deadline.timeRemaining() < 1; // not enough time to operate
 	}
@@ -125,8 +124,6 @@ function updateDom(dom, oldProps, newProps) {
 	Object.keys(newProps)
 		.filter(isEvent)
 		.forEach((key) => {
-            console.log(key,'event');
-            
 			const eventType = key.toLowerCase().substring(2);
 			dom.addEventListener(eventType, newProps[key]);
 		});
