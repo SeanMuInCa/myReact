@@ -39,7 +39,7 @@ const element3 = createElement(element2, { name: 'world' });
 
 render(element3, app);
 
-//review
+//review summary
 //1. create element convert type, props and children to fiber
 //2. render fiber to dom but the recursion will block the thread, so use requestIdleCallback to make sure it won't block the thread
 //3. fiber is a tree structure, so we can use recursion to render it
