@@ -31,7 +31,7 @@ const element = createElement(
 // console.log(element);
 const element2 = (props) => {
   const [state, setState] = useState(1);
-  return createElement('div', {onclick: () => setState(pre => pre + 1)}, state, props.name);// function as action
+  return createElement('button', {onclick: () => setState(pre => pre + 1)}, state);// function as action
 };
 console.log(typeof element2);
 
