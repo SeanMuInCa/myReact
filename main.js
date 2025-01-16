@@ -28,13 +28,12 @@ const element = createElement(
 // }
 // renderer('hello')
 // console.log(element);
-const App = (props) => {
+const element2 = (props) => {
   return createElement('div', null, 'hello ', props.name);
 };
-console.log(typeof App);
+console.log(typeof element2);
 
-const element3 = createElement(App, { name: 'world' });
+const element3 = createElement(element2, { name: 'world' });
 
 render(element3, app);
 
-// render(element1, app);
