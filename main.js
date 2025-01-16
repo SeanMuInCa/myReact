@@ -39,3 +39,13 @@ const element3 = createElement(element2, { name: 'world' });
 
 render(element3, app);
 
+//review
+//1. create element convert type, props and children to fiber
+//2. render fiber to dom but the recursion will block the thread, so use requestIdleCallback to make sure it won't block the thread
+//3. fiber is a tree structure, so we can use recursion to render it
+//4. fiber connect with dom, parent, child, sibling, type, props with dom
+//5. render and commit, render is async commit is sync, so that we can render page faster
+//6. myDiff based on type to decide what is the next action to fiber and the oldfiber, add update or delete
+//7. change props listeners and so on
+//8. function components is special, no dom
+//9. hooks is based on index to decide which hook to use
