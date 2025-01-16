@@ -60,6 +60,7 @@ function workLoop(deadline) {
 	if (!nextUnitOfWork && wipRoot) {
 		commitRoot();
 	}
+	// the real react doesn't use it, it has its own scheduler
 	requestIdleCallback(workLoop);
 }
 requestIdleCallback(workLoop); //call this method will inject a parameter to the workLoop
@@ -75,7 +76,7 @@ const commitWork = (fiber) => {
 	if (!fiber) return;
 	// parent node
 	let fiberParent = fiber.parent;
-    
+    //here is why we need a fragment as the root element
     while(!fiberParent.dom){
         fiberParent = fiberParent.parent;
     }
@@ -88,13 +89,23 @@ const commitWork = (fiber) => {
 		} else if (fiber.tag === "UPDATE" && fiber.dom != null) {
 			updateDom(fiber.dom, fiber.alternate.props, fiber.props);
 		} else if (fiber.tag === "DELETE") {
-			domParent.removeChild(fiber.dom);
+			// domParent.removeChild(fiber.dom);
+			// for the same reason as add
+			commitDelete(fiber, domParent);
 		}
 	}
 	commitWork(fiber.child);
 	commitWork(fiber.sibling);
 };
 
+function commitDelete(fiber, domParent) {
+	if (fiber.dom) {
+		domParent.removeChild(fiber.dom);
+	} else {
+		//if no dom, recursively to find a next dom
+		commitDelete(fiber.child, domParent);
+	}
+}
 function updateDom(dom, oldProps, newProps) {
 	//deal with event
 	const isEvent = (key) => key.startsWith("on");
