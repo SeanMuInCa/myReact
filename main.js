@@ -1,5 +1,6 @@
 
 import { createElement, crateTextElement, render } from "./src";
+import { useState } from "./src/render";
 const app = document.getElementById('app');
 const element = createElement(
   "h1", 
@@ -29,7 +30,8 @@ const element = createElement(
 // renderer('hello')
 // console.log(element);
 const element2 = (props) => {
-  return createElement('div', null, 'hello ', props.name);
+  const [state, setState] = useState(1);
+  return createElement('div', {onclick: () => setState(pre => pre + 1)}, state, props.name);// function as action
 };
 console.log(typeof element2);
 
