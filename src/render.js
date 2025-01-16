@@ -76,11 +76,11 @@ const commitWork = (fiber) => {
 	if (!fiber) return;
 	// parent node
 	let fiberParent = fiber.parent;
-    //here is why we need a fragment as the root element
-    while(!fiberParent.dom){
-        fiberParent = fiberParent.parent;
-    }
-    const domParent = fiberParent.dom;
+	//here is why we need a fragment as the root element
+	while (!fiberParent.dom) {
+		fiberParent = fiberParent.parent;
+	}
+	const domParent = fiberParent.dom;
 	if (domParent) {
 		//we need to do more than just append
 		// domParent.appendChild(fiber.dom);
@@ -146,22 +146,19 @@ function updateDom(dom, oldProps, newProps) {
 }
 
 function performUnitOfWork(fiber) {
-    const isFunctionComponent = fiber.type instanceof Function;
+	const isFunctionComponent = fiber.type instanceof Function;
 
-    if (isFunctionComponent) {
-        updateFunctionComponent(fiber);
-    } else {
-        updateHostComponent(fiber);
-    }
+	if (isFunctionComponent) {
+		updateFunctionComponent(fiber);
+	} else {
+		updateHostComponent(fiber);
+	}
 
-	
 	//covert to render and commit
 	// if (fiber.parent) {
 	//     fiber.parent.dom.appendChild(fiber.dom);
 	// }
-	
 
-	
 	//replace with diff
 	// let prevSibling = null;
 
@@ -196,27 +193,59 @@ function performUnitOfWork(fiber) {
 
 /**
  * deal with regular component
- * @param {*} fiber 
+ * @param {*} fiber
  */
-function updateHostComponent(fiber){
-    if (!fiber.dom) {
+function updateHostComponent(fiber) {
+	if (!fiber.dom) {
 		fiber.dom = createDom(fiber);
 	}
-    const elements = fiber.props.children;
-    myDiff(fiber, elements);
+	const elements = fiber.props.children;
+	myDiff(fiber, elements);
 }
 
 /**
  * deal with function component
- * @param {*} fiber 
+ * @param {*} fiber
  */
-function updateFunctionComponent(fiber){
-    console.log('i am a function component', fiber);
-    
-    const elements = [fiber.type(fiber.props)];
-    myDiff(fiber, elements);
+function updateFunctionComponent(fiber) {
+	console.log("i am a function component", fiber);
+
+	wipFiber = fiber;
+	hooksIndex = 0;
+	wipFiber.hooks = [];
+	const elements = [fiber.type(fiber.props)];
+	myDiff(fiber, elements);
 }
 
+export function useState(initial) {
+	const oldHook =
+		wipFiber.alternate &&
+		wipFiber.alternate.hooks &&
+		wipFiber.alternate.hooks[hooksIndex];
+	const hook = {
+		state: oldHook ? oldHook.state : initial,
+		queue: [],
+	};
+	const setState = (action) => {
+		hook.queue.push(action);
+		//trigger the update
+		wipRoot = {
+			dom: currentRoot.dom,
+			props: currentRoot.props,
+			alternate: currentRoot,
+		};
+		nextUnitOfWork = wipRoot;
+		deletions = [];
+	};
+	wipFiber.hooks.push(hook);
+	hooksIndex++;
+	return [hook.state, setState];
+}
+
+//hooks
+let wipFiber = null;
+// index is the key to know which hook is being used
+let hooksIndex = null;
 //key type
 // the diff method is going to compare based on key
 /**
